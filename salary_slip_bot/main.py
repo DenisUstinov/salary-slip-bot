@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from salary_slip_bot.config import BOT_TOKEN, ALLOWED_UPDATES, ADMIN_ID_LIST, CHAT_TYPE_LIST, ENV
+from salary_slip_bot.config import BOT_TOKEN, ALLOWED_UPDATES, USER_ID_LIST, CHAT_TYPE_LIST, ENV
 from salary_slip_bot.filters.chat_types import ChatTypeFilter
 from salary_slip_bot.filters.user_id import UserIdFilter
 
@@ -24,7 +24,7 @@ dp: Dispatcher = Dispatcher()
 
 # Применение фильтров к сообщениям: фильтр по типу чата и по ID пользователей
 dp.message.filter(ChatTypeFilter(CHAT_TYPE_LIST))
-dp.message.filter(UserIdFilter(ADMIN_ID_LIST))
+dp.message.filter(UserIdFilter(USER_ID_LIST))
 
 # Добавление маршрутизаторов для обработки команд и сообщений
 dp.include_routers(
@@ -38,12 +38,6 @@ dp.include_routers(
 )
 
 async def main() -> None:
-    """
-    Основная асинхронная функция, запускающая бота.
-    - Инициализирует объект Bot с заданным токеном и параметрами по умолчанию.
-    - Удаляет вебхук (если есть) и сбрасывает ожидающие обновления.
-    - Запускает long-polling для получения обновлений.
-    """
     bot: Bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     # Удаление вебхука и сброс ожидающих обновлений
