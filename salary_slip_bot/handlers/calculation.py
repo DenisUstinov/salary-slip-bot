@@ -7,11 +7,10 @@ from aiogram.fsm.context import FSMContext
 from datetime import datetime
 import re
 
-from salary_slip_bot.keyboards.reply import main_menu, single_cancel_button_keyboard
+from salary_slip_bot.keyboards.reply import main_menu, single_back_button_keyboard, single_cancel_button_keyboard
 from salary_slip_bot.database.works import get_works_within_period
 from salary_slip_bot.database.expenses import get_expenses_within_period
 from salary_slip_bot.database.settings import get_settings
-# from utils.calculations import calculate_total_expenses_payment, calculate_work_costs
 
 calculation_router = Router()
 
@@ -20,6 +19,7 @@ class FormRotation(StatesGroup):
     stop = State()
 
 @calculation_router.message(F.text == "Расчетка")
+@calculation_router.message(FormRotation.stop, F.text == "Назад")
 async def calculation_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
@@ -45,7 +45,7 @@ async def add_date_start_handler(message: Message, state: FSMContext) -> None:
     await state.update_data(start=start_timestamp)
     await message.answer(
         "Введите дату окончания вахты (формат: DD-MM-YYYY)!",
-        reply_markup=single_cancel_button_keyboard()
+        reply_markup=single_back_button_keyboard()
     )
     await state.set_state(FormRotation.stop)
 
@@ -53,7 +53,7 @@ async def add_date_start_handler(message: Message, state: FSMContext) -> None:
 async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     date_pattern = re.compile(r'^\d{2}-\d{2}-\d{4}$')
     if not date_pattern.match(message.text):
-        await message.answer("Ошибка: Неправильный формат даты. Пожалуйста, используйте формат DD-MM-YYYY.")
+        await message.answer("1Ошибка: Неправильный формат даты. Пожалуйста, используйте формат DD-MM-YYYY.")
         return
 
     try:
@@ -80,10 +80,11 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     works = await get_works_within_period(user_id, start_timestamp, stop_timestamp)
 
     # Получаем расходы по типам
+    meal_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Столовая')
     travel_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Проезд')
     medical_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Медкомиссия')
-    meal_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Столовая')
-
+    transfers_expenses = await get_expenses_within_period(user_id, start_timestamp, adjust_stop_timestamp(stop_timestamp), 'Переводы')
+    print(adjust_stop_timestamp(stop_timestamp))
     if not works:
         await message.answer(
             "Нет данных за указанный период.",
@@ -102,6 +103,8 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     total_travel_expenses = calculate_total_expenses_payment(travel_expenses)
     total_medical_expenses = calculate_total_expenses_payment(medical_expenses)
 
+    total_salary_transfers = calculate_total_expenses_payment(transfers_expenses)
+
     # 4. Формируем вывод расчета
     meal_compensation = settings[4]
     shift_rate = settings[1]
@@ -109,32 +112,38 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     moonlighting_rate = settings[3]
 
     total_meal_balance = meal_compensation - total_meal_cost
+    salary = costs['total_cost'] + total_meal_balance + total_travel_expenses + total_medical_expenses
 
     calculation_text = f"""
-    Расчетный лист
-
-    Питание
-        компенсация: {meal_compensation} руб
-        списания: {total_meal_cost} руб
-        ------
-        Остаток: {total_meal_balance} руб
-
-    Отработано
-        смены: {costs['shift_hours']} ч
-        подработка: {costs['repairing_hours']} ч
-        ремонт: {costs['moonlighting_hours']} ч
-        ------
-        Всего: {costs['shift_hours'] + costs['repairing_hours'] + costs['moonlighting_hours']} ч
-
-    Начисления
-        за смены: {costs['shift_hours']} * {shift_rate} = {costs['shift_cost']} руб
-        за подработку:{costs['repairing_hours']} *  {repairing_rate} = {costs['repairing_cost']} руб
-        за ремонты: {costs['moonlighting_hours']} * {moonlighting_rate} = {costs['moonlighting_cost']} руб
-        за питание: {total_meal_balance} руб
-        за проезд: {total_travel_expenses} руб
-        за медкомиссию: {total_medical_expenses} руб
-        ------
-        Итого: {costs['total_cost'] + total_meal_balance + total_travel_expenses + total_medical_expenses} руб
+    +--------------------------------------------------------
+    |                    Расчетный лист
+    +--------------------------------------------------------
+    | Питание
+    |    компенсация: {meal_compensation} руб
+    |    списания: {total_meal_cost} руб
+    |    ------
+    |    Остаток: {total_meal_balance} руб
+    +--------------------------------------------------------
+    | Отработано
+    |    смены: {costs['shift_hours']} ч
+    |    подработка: {costs['repairing_hours']} ч
+    |    ремонт: {costs['moonlighting_hours']} ч
+    |    ------
+    |    Всего: {costs['shift_hours'] + costs['repairing_hours'] + costs['moonlighting_hours']} ч
+    +--------------------------------------------------------
+    | Начисления
+    |    за смены: {costs['shift_hours']} * {shift_rate} = {costs['shift_cost']} руб
+    |    за подработку: {costs['repairing_hours']} * {repairing_rate} = {costs['repairing_cost']} руб
+    |    за ремонты: {costs['moonlighting_hours']} * {moonlighting_rate} = {costs['moonlighting_cost']} руб
+    |    за питание: {total_meal_balance} руб
+    |    за проезд: {total_travel_expenses} руб
+    |    за медкомиссию: {total_medical_expenses} руб
+    |    ------
+    |    Итого: {salary} руб
+    +--------------------------------------------------------
+    | Всего получено оплаты: {total_salary_transfers} руб
+    | Задолженность за работодателем: {salary - total_salary_transfers} руб
+    +--------------------------------------------------------
     """
     await message.answer(calculation_text)
 
@@ -201,10 +210,29 @@ def calculate_work_costs(
     }
 
 def calculate_total_expenses_payment(expenses: List[Tuple[int, int, int, int]]) -> int:
-    total_expenses = 0  # Инициализируем переменную для хранения общей суммы
+    total_expenses = 0
 
     for expense in expenses:
-        _, payment, _ = expense
-        total_expenses += payment  # Добавляем значение платежа к общей сумме
+        _, _, payment, _ = expense
+        total_expenses += payment
 
-    return total_expenses  # Возвращаем итоговую сумму
+    return total_expenses
+
+def adjust_stop_timestamp(stop_timestamp: int) -> int:
+    # Преобразуем временную метку UNIX в объект datetime
+    stop_date = datetime.fromtimestamp(stop_timestamp)
+
+    # Определяем новый месяц и год, учитывая переход через декабрь (месяц 12)
+    new_month = (stop_date.month + 2) % 12
+    new_year = stop_date.year + (stop_date.month + 2) // 12
+
+    # Если new_month стал равен 0 (то есть январь), корректируем его на 12
+    if new_month == 0:
+        new_month = 12
+        new_year -= 1  # Возвращаем год на предыдущий
+
+    # Создаем новую дату с корректированными месяцем и годом
+    new_stop_date = stop_date.replace(month=new_month, year=new_year)
+
+    # Преобразуем новую дату обратно в временную метку UNIX
+    return int(new_stop_date.timestamp())

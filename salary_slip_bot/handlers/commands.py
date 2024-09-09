@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from salary_slip_bot.keyboards.reply import main_menu
 from salary_slip_bot.database.sqlite import init_db
 

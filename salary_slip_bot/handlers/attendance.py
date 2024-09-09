@@ -11,8 +11,10 @@ attendance_router = Router()
 class FormWork(StatesGroup):
     type = State()
     duration = State()
+    
 
 @attendance_router.message(F.text == "Табель")
+@attendance_router.message(FormWork.duration, F.text == "Назад")
 async def attendance_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
@@ -30,7 +32,7 @@ async def select_work_type_handler(message: Message, state: FSMContext) -> None:
     )
     await state.set_state(FormWork.duration)
 
-@attendance_router.message(FormWork.duration, F.text.casefold() != "назад")
+@attendance_router.message(FormWork.duration, F.text)
 async def add_work_duration_handler(message: Message, state: FSMContext) -> None:
     try:
         duration = int(message.text)
@@ -50,9 +52,3 @@ async def add_work_duration_handler(message: Message, state: FSMContext) -> None
     )
     await state.clear()
     await state.set_state(FormWork.type)
-
-@attendance_router.message(FormWork.duration, F.text.casefold() == "назад")
-async def back_handler(message: Message, state: FSMContext) -> None:
-    await state.clear()
-    await state.set_state(FormWork.type)
-    await message.answer("Действия отменены", reply_markup=select_work_type_keyboard())

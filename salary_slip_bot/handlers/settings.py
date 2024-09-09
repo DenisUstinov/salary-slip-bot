@@ -3,7 +3,7 @@ from aiogram.filters import or_f
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from salary_slip_bot.keyboards.reply import select_settings_type_keyboard, select_pricing_type_keyboard, single_back_button_keyboard, single_cancel_button_keyboard
+from salary_slip_bot.keyboards.reply import select_settings_type_keyboard, select_pricing_type_keyboard, single_back_button_keyboard
 from salary_slip_bot.database.settings import update_meal_compensation, update_pricing
 
 settings_router = Router()
@@ -11,7 +11,15 @@ settings_router = Router()
 class FormSettings(StatesGroup):
     start = State()
 
+class FormPricing(StatesGroup):
+    pricing_type = State()
+    hour_price = State()
+
+class FormMealCompensation(StatesGroup):
+    meal_compensation = State()
+
 @settings_router.message(F.text == "Настройки")
+@settings_router.message(or_f(FormSettings.start, FormPricing.pricing_type), F.text == "Назад")
 async def settings_handler(message: Message, state: FSMContext) -> None:
     await message.answer(
         "Выберите вид настроек!",
@@ -19,11 +27,8 @@ async def settings_handler(message: Message, state: FSMContext) -> None:
     )
     await state.set_state(FormSettings.start)
 
-class FormPricing(StatesGroup):
-    pricing_type = State()
-    hour_price = State()
-
 @settings_router.message(FormSettings.start, F.text == "Расценки")
+@settings_router.message(or_f(FormPricing.hour_price, FormMealCompensation.meal_compensation), F.text == "Назад")
 async def pricing_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
@@ -41,7 +46,7 @@ async def select_pricing_type_handler(message: Message, state: FSMContext) -> No
     )
     await state.set_state(FormPricing.hour_price)
 
-@settings_router.message(FormPricing.hour_price, F.text.casefold() != "назад")
+@settings_router.message(FormPricing.hour_price, F.text)
 async def add_hour_price_handler(message: Message, state: FSMContext) -> None:
     try:
         hour_price = int(message.text)
@@ -61,9 +66,6 @@ async def add_hour_price_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await state.set_state(FormPricing.pricing_type)
 
-class FormMealCompensation(StatesGroup):
-    meal_compensation = State()
-
 @settings_router.message(FormPricing.pricing_type, F.text == "Питание")
 async def meal_compensation_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
@@ -73,7 +75,7 @@ async def meal_compensation_handler(message: Message, state: FSMContext) -> None
     )
     await state.set_state(FormMealCompensation.meal_compensation)
 
-@settings_router.message(FormMealCompensation.meal_compensation, F.text.casefold() != "назад")
+@settings_router.message(FormMealCompensation.meal_compensation, F.text)
 async def add_meal_compensation_handler(message: Message, state: FSMContext) -> None:
     try:
         meal_compensation = int(message.text)
@@ -89,9 +91,3 @@ async def add_meal_compensation_handler(message: Message, state: FSMContext) -> 
     )
     await state.clear()
     await state.set_state(FormPricing.pricing_type)
-
-@settings_router.message(or_f(FormPricing.hour_price, FormMealCompensation.meal_compensation), F.text.casefold() == "назад")
-async def back_handler(message: Message, state: FSMContext) -> None:
-    await state.clear()
-    await state.set_state(FormPricing.pricing_type)
-    await message.answer("Действия отменены 1", reply_markup=select_pricing_type_keyboard())

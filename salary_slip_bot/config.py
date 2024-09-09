@@ -5,7 +5,7 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-ENV = "LOCAL" #PROD
+ENV = "PROD" # PROD LOCAL
 
 ALLOWED_UPDATES = [
     'message',
@@ -13,7 +13,8 @@ ALLOWED_UPDATES = [
     'callback_query'
 ]
 ADMIN_ID_LIST = [
-    512647405
+    512647405,
+    1745922009
     ]
 
 CHAT_TYPE_LIST = [
