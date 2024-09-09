@@ -16,6 +16,8 @@ from salary_slip_bot.handlers.attendance import attendance_router
 from salary_slip_bot.handlers.expenses import expenses_router
 from salary_slip_bot.handlers.settings import settings_router
 from salary_slip_bot.handlers.calculation import calculation_router
+from salary_slip_bot.handlers.lists import lists_router
+
 from salary_slip_bot.handlers.deleter import deleter_router
 
 
@@ -34,6 +36,8 @@ dp.include_routers(
     expenses_router,
     settings_router,
     calculation_router,
+    lists_router,
+    
     deleter_router
 )
 

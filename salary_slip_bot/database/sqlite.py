@@ -55,6 +55,14 @@ async def init_db(user_id: int):
                 )
             ''')
 
+            # Создание таблицы для списка с иерархией
+            await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS lists (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    item TEXT NOT NULL
+                )
+            ''')
+
             # Инициализация таблицы настроек, если они еще не заданы
             await cursor.execute('''
                 INSERT OR IGNORE INTO settings (id, pricing_hour_shift, pricing_hour_repairing, pricing_hour_moonlighting, meal_compensation)
