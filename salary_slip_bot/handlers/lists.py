@@ -21,10 +21,10 @@ async def lists_selection_handler(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     lists = await get_all_lists(user_id)
     if not lists:
-        await message.answer("Список пуст.")
-        return
-    lists_dict = transform_lists_to_dict(lists)
-    response_message = format_list_items_message(lists_dict)
+        response_message = "Список пуст."
+    else:
+        lists_dict = transform_lists_to_dict(lists)
+        response_message = format_list_items_message(lists_dict)
     await message.answer(
         response_message,
         reply_markup=select_action_type_keyboard()
@@ -94,7 +94,7 @@ async def select_header_handler(message: Message, state: FSMContext) -> None:
 @lists_router.message(FormList.item, F.text)
 async def add_item_handler(message: Message, state: FSMContext) -> None:
     header = (await state.get_data()).get('header')
-    item = message.text
+    item = message.text.lower()
     user_id = message.from_user.id
     await add_item_to_list(user_id, header, item)
     await message.answer(
