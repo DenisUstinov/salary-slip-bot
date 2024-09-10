@@ -1,24 +1,43 @@
-from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
-from salary_slip_bot.keyboards.reply import select_action_type_keyboard
+from aiogram import F, Router
+from aiogram.filters import or_f
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from salary_slip_bot.database.lists import get_all_lists
+from aiogram.types import Message
+from salary_slip_bot.keyboards.reply import select_categories_type_keyboard, single_back_button_keyboard, select_action_type_keyboard
+from salary_slip_bot.database.lists import add_item_to_list, get_all_lists  # Импортируем функции из нового файла
 
-lists_router = Router()
+list_router = Router()
 
-@lists_router.message(F.text == "Незабыть")
-async def show_lists_handler(message: Message, state: FSMContext) -> None:
+class FormList(StatesGroup):
+    category = State()
+    item = State()
+
+@list_router.message(F.text == "Списки")
+async def lists_handler(message: Message, state: FSMContext) -> None:
+    await message.answer(
+        "Выберите категорию!",
+        reply_markup=select_categories_type_keyboard()
+    )
+    await state.set_state(FormList.category)
+
+@list_router.message(FormList.category, or_f(F.text.in_(["Гигиена", "Аптечка", "Одежды", "Еда", "Развлечения", "Гаджеты", "Рыбалка", "Другое"])))
+async def select_category_handler(message: Message, state: FSMContext) -> None:
+    await state.update_data(category=message.text)
+    await message.answer(
+        "Введите новый элемент для добавления в категорию!",
+        reply_markup=single_back_button_keyboard()
+    )
+    await state.set_state(FormList.item)
+
+@list_router.message(FormList.item, F.text)
+async def add_item_handler(message: Message, state: FSMContext) -> None:
+    category = (await state.get_data()).get('category')
+    item = message.text
     user_id = message.from_user.id
-    rows = await get_all_lists(user_id)
+    await add_item_to_list(user_id, category, item)
+
     await message.answer(
-        "В",
-        reply_markup=select_action_type_keyboard()
+        "Элемент добавлен!",
+        reply_markup=select_categories_type_keyboard()
     )
-    
-    buttons = [InlineKeyboardButton(text=item_text, callback_data=f"list_{item_id}") for item_id, item_text in rows]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[buttons])
-    
-    await message.answer(
-        "Вот все ваши записи:",
-        reply_markup=keyboard
-    )
+    await state.clear()

@@ -59,6 +59,7 @@ async def init_db(user_id: int):
             await cursor.execute('''
                 CREATE TABLE IF NOT EXISTS lists (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    header TEXT NOT NULL,
                     item TEXT NOT NULL
                 )
             ''')

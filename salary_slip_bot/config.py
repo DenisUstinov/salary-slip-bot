@@ -8,7 +8,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Окружение (LOCAL или PROD)
-ENV = os.getenv("ENV", "LOCAL")
+ENV = os.getenv("ENV", "PROD")
 
 # Вебхуки
 SELF_SSL = os.getenv("SELF_SSL", "False").lower() == "true"

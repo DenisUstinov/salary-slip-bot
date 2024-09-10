@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 def main_menu() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text="Табель"), KeyboardButton(text="Финансы")],
-        [KeyboardButton(text="Расчетка"), KeyboardButton(text="Незабыть")],
+        [KeyboardButton(text="Расчетка"), KeyboardButton(text="Списки")],
         [KeyboardButton(text="Настройки")]
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
@@ -41,6 +41,16 @@ def select_expense_type_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="Медкомиссия")],
         [KeyboardButton(text="Переводы")],
         [KeyboardButton(text="Отмена")],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+def select_categories_type_keyboard() -> ReplyKeyboardMarkup:
+    keyboard = [
+        [KeyboardButton(text="Гигиена"), KeyboardButton(text="Аптечка")],
+        [KeyboardButton(text="Одежды"), KeyboardButton(text="Еда")],
+        [KeyboardButton(text="Развлечения"), KeyboardButton(text="Гаджеты")],
+        [KeyboardButton(text="Рыбалка"), KeyboardButton(text="Другое")],
+        [KeyboardButton(text="Назад")],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
