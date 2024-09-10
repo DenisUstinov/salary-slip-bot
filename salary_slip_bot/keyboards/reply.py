@@ -47,8 +47,9 @@ def select_expense_type_keyboard() -> ReplyKeyboardMarkup:
 def select_categories_type_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text="Гигиена"), KeyboardButton(text="Аптечка")],
-        [KeyboardButton(text="Одежды"), KeyboardButton(text="Еда")],
+        [KeyboardButton(text="Одежда"), KeyboardButton(text="Еда")],
         [KeyboardButton(text="Развлечения"), KeyboardButton(text="Гаджеты")],
+        [KeyboardButton(text="Канцелярия"), KeyboardButton(text="Работа")],
         [KeyboardButton(text="Рыбалка"), KeyboardButton(text="Другое")],
         [KeyboardButton(text="Назад")],
     ]
@@ -57,7 +58,8 @@ def select_categories_type_keyboard() -> ReplyKeyboardMarkup:
 def select_action_type_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text="Добавить"), KeyboardButton(text="Удалить")],
-        [KeyboardButton(text="Назад")],
+        [KeyboardButton(text="Показать")],
+        [KeyboardButton(text="Отмена")],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
