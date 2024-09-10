@@ -168,5 +168,5 @@ cython_debug/
 .github/
 
 # My
-.db
-databases/512647405.db
+databases/
+.DS_Store
