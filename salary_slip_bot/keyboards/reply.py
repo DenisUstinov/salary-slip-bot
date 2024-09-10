@@ -58,7 +58,7 @@ def select_categories_type_keyboard() -> ReplyKeyboardMarkup:
 def select_action_type_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text="Добавить"), KeyboardButton(text="Удалить")],
-        [KeyboardButton(text="Показать")],
+        # [KeyboardButton(text="Показать")],
         [KeyboardButton(text="Отмена")],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
