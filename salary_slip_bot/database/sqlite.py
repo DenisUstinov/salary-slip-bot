@@ -12,6 +12,11 @@ if not os.path.exists(BASE_DIR):
 def get_db_path(user_id: int) -> str:
     return os.path.join(BASE_DIR, f'{user_id}.db')
 
+# Проверка существования базы данных для пользователя
+async def check_user_db_exists(user_id: int) -> bool:
+    db_path = get_db_path(user_id)
+    return os.path.exists(db_path)
+
 # Контекстный менеджер для подключения к базе данных пользователя
 @asynccontextmanager
 async def get_db_connection(user_id: int):
