@@ -82,7 +82,7 @@ async def add_list_item_handler(message: Message, state: FSMContext) -> None:  #
     )
     await state.set_state(FormList.header)
 
-@lists_router.message(FormList.header, F.text.in_(["Гигиена", "Аптечка", "Одежда", "Еда", "Развлечения", "Гаджеты", "Канцелярия", "Работа", "Рыбалка", "Другое"]))
+@lists_router.message(FormList.header, F.text.in_(["Гигиена", "Аптечка", "Одежда", "Еда", "Развлечения", "Гаджеты", "Канцелярия", "Работа", "Склад", "Другое"]))
 async def select_header_handler(message: Message, state: FSMContext) -> None:
     await state.update_data(header=message.text)
     await message.answer(

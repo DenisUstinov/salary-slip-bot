@@ -50,7 +50,7 @@ def select_categories_type_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="Одежда"), KeyboardButton(text="Еда")],
         [KeyboardButton(text="Развлечения"), KeyboardButton(text="Гаджеты")],
         [KeyboardButton(text="Канцелярия"), KeyboardButton(text="Работа")],
-        [KeyboardButton(text="Рыбалка"), KeyboardButton(text="Другое")],
+        [KeyboardButton(text="Склад"), KeyboardButton(text="Другое")],
         [KeyboardButton(text="Назад")],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
