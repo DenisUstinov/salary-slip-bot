@@ -20,13 +20,9 @@ from salary_slip_bot.handlers.settings import settings_router
 from salary_slip_bot.handlers.calculation import calculation_router
 from salary_slip_bot.handlers.lists import lists_router
 from salary_slip_bot.handlers.deleter import deleter_router
-from salary_slip_bot.middlewares.check_user_database import UserDatabaseMiddleware
 
 # Инициализация диспетчера событий
 dp: Dispatcher = Dispatcher()
-
-# Применение middleware
-# dp.message.middleware(UserDatabaseMiddleware())
 
 # Применение фильтров к сообщениям
 dp.message.filter(ChatTypeFilter(CHAT_TYPE_LIST))
@@ -35,7 +31,7 @@ dp.message.filter(UserIdFilter(USER_ID_LIST))
 @dp.message(CommandStart())
 async def command_start_handler(message: types.Message) -> None:
     user_id = message.from_user.id
-    
+
     await init_db(user_id)
     await message.answer(
         f"Привет, {message.from_user.full_name}!",
