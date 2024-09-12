@@ -1,7 +1,12 @@
-from aiogram import F, Router
+from aiogram import Router, types
+from aiogram.filters import CommandStart
 
+from salary_slip_bot.database.sqlite import init_db
+from salary_slip_bot.keyboards.reply import main_menu
 
-@dp.message(CommandStart())
+start_router = Router()
+
+@start_router.message(CommandStart())
 async def command_start_handler(message: types.Message) -> None:
     user_id = message.from_user.id
 

@@ -50,7 +50,7 @@ dp.include_routers(
 )
 
 async def main() -> None:
-    bot: Bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot: Bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 
     logging.info("Starting in long-polling mode")
     await bot.delete_webhook(drop_pending_updates=True)

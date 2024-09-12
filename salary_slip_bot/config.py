@@ -1,21 +1,4 @@
-import os
-from dotenv import load_dotenv
-
-# Загрузка переменных окружения из .env файла
-load_dotenv()
-
-# Токен бота
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBHOOK_PATH = "/" + os.getenv("PROJECT_NAME")
-DOMAIN = os.getenv("DOMAIN_IP")
-EXTERNAL_PORT = 8443
-BASE_WEBHOOK_URL = "https://" + DOMAIN + ":" + str(EXTERNAL_PORT)
-WEB_SERVER_HOST = "127.0.0.1"
-WEB_SERVER_PORT = 8080
-WEBHOOK_SECRET = "my-secret"
-
-# Окружение (LOCAL или PROD)
-ENV = os.getenv("ENV", "PROD")
+ENV = "LOCAL"
 
 # Настройки обновлений
 ALLOWED_UPDATES = [
