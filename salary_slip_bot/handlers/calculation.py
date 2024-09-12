@@ -81,10 +81,10 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
 
     # Получаем расходы по типам
     meal_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Столовая')
-    travel_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Проезд')
+    travel_expenses = await get_expenses_within_period(user_id, adjust_stop_timestamp(start_timestamp, 0, 1), adjust_stop_timestamp(start_timestamp, 0, 30), 'Проезд')
     medical_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Медкомиссия')
-    transfers_expenses = await get_expenses_within_period(user_id, adjust_stop_timestamp(start_timestamp, 1), adjust_stop_timestamp(stop_timestamp, 2), 'Переводы')
-    # print(datetime.fromtimestamp(adjust_stop_timestamp(start_timestamp, 1)), datetime.fromtimestamp(adjust_stop_timestamp(stop_timestamp, 2)))
+    transfers_expenses = await get_expenses_within_period(user_id, adjust_stop_timestamp(start_timestamp, 1, 10), adjust_stop_timestamp(stop_timestamp, 2, 10), 'Переводы')
+    print(datetime.fromtimestamp(adjust_stop_timestamp(start_timestamp, 0, 1)), datetime.fromtimestamp(adjust_stop_timestamp(stop_timestamp, 0, 30)))
     if not works:
         await message.answer(
             "Нет данных за указанный период.",
@@ -217,7 +217,7 @@ def calculate_total_expenses_payment(expenses: List[Tuple[int, int, int, int]]) 
 
     return total_expenses
 
-def adjust_stop_timestamp(stop_timestamp: int, months_to_add: int) -> int:
+def adjust_stop_timestamp(stop_timestamp: int, months_to_add: int, day: int) -> int:
     # Преобразуем временную метку UNIX в объект datetime
     stop_date = datetime.fromtimestamp(stop_timestamp)
 
@@ -231,7 +231,7 @@ def adjust_stop_timestamp(stop_timestamp: int, months_to_add: int) -> int:
         new_year -= 1  # Возвращаем год на предыдущий
 
     # Создаем новую дату с корректированными месяцем и годом, устанавливаем день 10
-    new_stop_date = stop_date.replace(month=new_month, year=new_year, day=10)
+    new_stop_date = stop_date.replace(month=new_month, year=new_year, day=day)
 
     # Преобразуем новую дату обратно в временную метку UNIX
     return int(new_stop_date.timestamp())
