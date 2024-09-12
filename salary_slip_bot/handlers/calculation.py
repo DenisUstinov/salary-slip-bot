@@ -53,7 +53,7 @@ async def add_date_start_handler(message: Message, state: FSMContext) -> None:
 async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     date_pattern = re.compile(r'^\d{2}-\d{2}-\d{4}$')
     if not date_pattern.match(message.text):
-        await message.answer("1Ошибка: Неправильный формат даты. Пожалуйста, используйте формат DD-MM-YYYY.")
+        await message.answer("Ошибка: Неправильный формат даты. Пожалуйста, используйте формат DD-MM-YYYY.")
         return
 
     try:
@@ -83,8 +83,8 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     meal_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Столовая')
     travel_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Проезд')
     medical_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Медкомиссия')
-    transfers_expenses = await get_expenses_within_period(user_id, start_timestamp, adjust_stop_timestamp(stop_timestamp), 'Переводы')
-    print(adjust_stop_timestamp(stop_timestamp))
+    transfers_expenses = await get_expenses_within_period(user_id, adjust_stop_timestamp(start_timestamp, 1), adjust_stop_timestamp(stop_timestamp, 2), 'Переводы')
+    print(adjust_stop_timestamp(start_timestamp, 1), adjust_stop_timestamp(stop_timestamp, 2))
     if not works:
         await message.answer(
             "Нет данных за указанный период.",
@@ -218,21 +218,21 @@ def calculate_total_expenses_payment(expenses: List[Tuple[int, int, int, int]]) 
 
     return total_expenses
 
-def adjust_stop_timestamp(stop_timestamp: int) -> int:
+def adjust_stop_timestamp(stop_timestamp: int, months_to_add: int) -> int:
     # Преобразуем временную метку UNIX в объект datetime
     stop_date = datetime.fromtimestamp(stop_timestamp)
 
     # Определяем новый месяц и год, учитывая переход через декабрь (месяц 12)
-    new_month = (stop_date.month + 2) % 12
-    new_year = stop_date.year + (stop_date.month + 2) // 12
+    new_month = (stop_date.month + months_to_add) % 12
+    new_year = stop_date.year + (stop_date.month + months_to_add) // 12
 
     # Если new_month стал равен 0 (то есть январь), корректируем его на 12
     if new_month == 0:
         new_month = 12
         new_year -= 1  # Возвращаем год на предыдущий
 
-    # Создаем новую дату с корректированными месяцем и годом
-    new_stop_date = stop_date.replace(month=new_month, year=new_year)
+    # Создаем новую дату с корректированными месяцем и годом, устанавливаем день 10
+    new_stop_date = stop_date.replace(month=new_month, year=new_year, day=10)
 
     # Преобразуем новую дату обратно в временную метку UNIX
     return int(new_stop_date.timestamp())
