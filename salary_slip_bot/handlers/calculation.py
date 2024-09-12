@@ -84,7 +84,7 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     travel_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Проезд')
     medical_expenses = await get_expenses_within_period(user_id, start_timestamp, stop_timestamp, 'Медкомиссия')
     transfers_expenses = await get_expenses_within_period(user_id, adjust_stop_timestamp(start_timestamp, 1), adjust_stop_timestamp(stop_timestamp, 2), 'Переводы')
-    print(adjust_stop_timestamp(start_timestamp, 1), adjust_stop_timestamp(stop_timestamp, 2))
+    # print(datetime.fromtimestamp(adjust_stop_timestamp(start_timestamp, 1)), datetime.fromtimestamp(adjust_stop_timestamp(stop_timestamp, 2)))
     if not works:
         await message.answer(
             "Нет данных за указанный период.",
@@ -115,36 +115,35 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
     salary = costs['total_cost'] + total_meal_balance + total_travel_expenses + total_medical_expenses
 
     calculation_text = f"""
-    +--------------------------------------------------------
-    |                    Расчетный лист
-    +--------------------------------------------------------
-    | Питание
-    |    компенсация: {meal_compensation} руб
-    |    списания: {total_meal_cost} руб
-    |    ------
-    |    Остаток: {total_meal_balance} руб
-    +--------------------------------------------------------
-    | Отработано
-    |    смены: {costs['shift_hours']} ч
-    |    подработка: {costs['repairing_hours']} ч
-    |    ремонт: {costs['moonlighting_hours']} ч
-    |    ------
-    |    Всего: {costs['shift_hours'] + costs['repairing_hours'] + costs['moonlighting_hours']} ч
-    +--------------------------------------------------------
-    | Начисления
-    |    за смены: {costs['shift_hours']} * {shift_rate} = {costs['shift_cost']} руб
-    |    за подработку: {costs['repairing_hours']} * {repairing_rate} = {costs['repairing_cost']} руб
-    |    за ремонты: {costs['moonlighting_hours']} * {moonlighting_rate} = {costs['moonlighting_cost']} руб
-    |    за питание: {total_meal_balance} руб
-    |    за проезд: {total_travel_expenses} руб
-    |    за медкомиссию: {total_medical_expenses} руб
-    |    ------
-    |    Итого: {salary} руб
-    +--------------------------------------------------------
-    | Всего получено оплаты: {total_salary_transfers} руб
-    | Задолженность за работодателем: {salary - total_salary_transfers} руб
-    +--------------------------------------------------------
-    """
++---------------------------------------------------
+|                    Расчетный лист
++---------------------------------------------------
+| Питание
+|    компенсация: {meal_compensation} руб
+|    списания: {total_meal_cost} руб
+|    ------
+|    Остаток: {total_meal_balance} руб
++---------------------------------------------------
+| Отработано
+|    смены: {costs['shift_hours']} ч
+|    подработка: {costs['repairing_hours']} ч
+|    ремонт: {costs['moonlighting_hours']} ч
+|    ------
+|    Всего: {costs['shift_hours'] + costs['repairing_hours'] + costs['moonlighting_hours']} ч
++---------------------------------------------------
+| Начисления
+|    за смены: {costs['shift_hours']} * {shift_rate} = {costs['shift_cost']} руб
+|    за подработку: {costs['repairing_hours']} * {repairing_rate} = {costs['repairing_cost']} руб
+|    за ремонты: {costs['moonlighting_hours']} * {moonlighting_rate} = {costs['moonlighting_cost']} руб
+|    за питание: {total_meal_balance} руб
+|    за проезд: {total_travel_expenses} руб
+|    за медкомиссию: {total_medical_expenses} руб
+|    ------
+|    Итого: {salary} руб
++---------------------------------------------------
+| Всего получено оплаты: {total_salary_transfers} руб
+| Задолженность за работодателем: {salary - total_salary_transfers} руб
++---------------------------------------------------"""
     await message.answer(calculation_text)
 
     # 5. Создаём файл в памяти с использованием BytesIO

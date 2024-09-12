@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from os import getenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -9,7 +10,7 @@ from aiogram.filters import CommandStart
 from salary_slip_bot.keyboards.reply import main_menu
 from salary_slip_bot.database.sqlite import init_db
 
-from salary_slip_bot.config import BOT_TOKEN, ALLOWED_UPDATES, USER_ID_LIST, CHAT_TYPE_LIST
+from salary_slip_bot.config import ALLOWED_UPDATES, USER_ID_LIST, CHAT_TYPE_LIST
 
 from salary_slip_bot.filters.chat_types import ChatTypeFilter
 from salary_slip_bot.filters.user_id import UserIdFilter
@@ -20,6 +21,8 @@ from salary_slip_bot.handlers.settings import settings_router
 from salary_slip_bot.handlers.calculation import calculation_router
 from salary_slip_bot.handlers.lists import lists_router
 from salary_slip_bot.handlers.deleter import deleter_router
+
+TOKEN = getenv("BOT_TOKEN")
 
 # Инициализация диспетчера событий
 dp: Dispatcher = Dispatcher()
@@ -50,7 +53,7 @@ dp.include_routers(
 )
 
 async def main() -> None:
-    bot: Bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     logging.info("Starting in long-polling mode")
     await bot.delete_webhook(drop_pending_updates=True)
