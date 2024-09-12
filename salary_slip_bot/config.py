@@ -1,4 +1,4 @@
-ENV = "LOCAL"
+ENV = "PROD"
 
 # Настройки обновлений
 ALLOWED_UPDATES = [

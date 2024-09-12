@@ -4,6 +4,7 @@ from os import getenv
 from aiohttp import web
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
@@ -46,7 +47,7 @@ def main() -> None:
         deleter_router
     )
 
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
