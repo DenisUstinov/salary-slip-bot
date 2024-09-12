@@ -46,7 +46,8 @@ async def init_db(user_id: int):
                     pricing_hour_shift INTEGER NOT NULL,
                     pricing_hour_repairing INTEGER NOT NULL,
                     pricing_hour_moonlighting INTEGER NOT NULL,
-                    meal_compensation INTEGER NOT NULL
+                    meal_compensation INTEGER NOT NULL,
+                    time_subscription INTEGER NOT NULL
                 )
             ''')
 

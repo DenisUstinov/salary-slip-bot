@@ -7,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 from datetime import datetime
 import re
 
+from salary_slip_bot.config import ADMIN_ID_LIST
+from salary_slip_bot.filters.admin_or_subscription import AdminOrSubscriptionFilter
 from salary_slip_bot.keyboards.reply import main_menu, single_back_button_keyboard, single_cancel_button_keyboard
 from salary_slip_bot.database.works import get_works_within_period
 from salary_slip_bot.database.expenses import get_expenses_within_period
@@ -76,6 +78,8 @@ async def add_date_stop_handler(message: Message, state: FSMContext) -> None:
         )
         await state.clear()
         return
+    
+    # calculation_router.message.filter(AdminOrSubscriptionFilter(ADMIN_ID_LIST, settings))
     
     works = await get_works_within_period(user_id, start_timestamp, stop_timestamp)
 
