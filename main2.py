@@ -37,13 +37,13 @@ def main() -> None:
     dp = Dispatcher()
 
     dp.include_routers(
+        start_router,
         cancel_router,
         attendance_router,
         expenses_router,
         settings_router,
         calculation_router,
         lists_router,
-        start_router,
         deleter_router
     )
 
